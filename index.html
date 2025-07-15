@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Literaturverzeichnis-Checker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>📄 Literaturverzeichnis prüfen</h1>
+    <p style="font-size:20px;">Dieser <b>Prototyp</b> dient dazu, Literaturverzeichnisse aus PDF-Dokumenten zu extrahieren und auf ihre Richtigkeit zu überprüfen.</p>
+    <details style="margin-bottom: 1em;">
+        <summary style="cursor: pointer; ">ℹ️ Erklärung zum Prototypen anzeigen</summary>
+  <p>Dieser Prototyp besteht aus mehreren Schritten, um Literaturverzeichnisse aus PDF-Dokumenten automatisch zu extrahieren und deren Quellen auf Verfügbarkeit und Gültigkeit zu prüfen:</p>
+
+  <ol>
+    <li><strong>PDF-Text extrahieren:</strong>  
+      Mittels <code>pdf.js</code> wird aus dem hochgeladenen PDF-Dokument der Text extrahiert. Am besten nur das Literaturverzeichnis hochladen.</li>
+    <li><strong>Referenzen extrahieren:</strong>  
+      Der extrahierte Text wird an ein Large Language Model (LLM) gesendet, genauer an das Modell <code>mistral-small-3.2-24b-instruct</code>. Dieses verarbeitet den Text und gibt ein strukturiertes JSON mit den einzelnen Literaturverweisen zurück, das Titel, Autoren, Jahr, Verlag, DOI oder URLs enthält (siehe unten Details).</li>
+    <li><strong>Prüfung der Referenzen:</strong>  
+      Für jeden Eintrag wird der Status geprüft, um festzustellen, ob die Quelle erreichbar und gültig ist. Der Prüfprozess erfolgt hierarchisch:  
+      <ul>
+        <li>Existiert eine DOI, wird diese per Crossref validiert.</li>
+        <li>Ist keine DOI vorhanden, aber eine URL, wird diese ebenfalls per HTTP-Request geprüft.</li>
+        <li>Fehlen DOI und URL, erfolgt eine Suche über externe Dienste, beginnend mit <code>Google Books</code>, dann <code>Crossref</code> und zuletzt <code>OpenAlex</code>, um die Existenz der Quelle anhand von Autor, Titel und Jahr zu verifizieren.</li>
+      </ul>  
+      So erhalten Sie für jede Referenz eine Statusanzeige, die Ihnen hilft, fehlerhafte oder nicht auffindbare Quellen schnell zu erkennen.</li>
+  </ol>
+
+  <p>Die Statusangaben sind interaktiv: Sie werden nach dem Laden des PDFs schrittweise aktualisiert, sodass Sie sofort eine Übersicht haben und die Prüfung parallel im Hintergrund erfolgt.</p>
+    </details>
+    <h2>🔑 API-Schlüssel eingeben</h2>
+    <p>Sie müssen zuerst Ihren OpenRouter API-Schlüssel eingeben, um die Analyse durchzuführen.</p>
+    <label for="apiKey">OpenRouter API Key:</label>
+    <input type="password" id="apiKey" placeholder="sk-..." style="width: 300px;">
+    <button onclick="saveApiKey()">Speichern</button>
+    <p>Der API-Schlüssel wird lokal gespeichert und ist nur für diese Sitzung verfügbar. Anschließend können Sie ein PDF-Dokument hochladen.</p>
+    <h2>📥 PDF-Dokument hochladen</h2>
+    <input type="file" id="pdf-upload" accept=".pdf">
+    <p id="status">Bitte ein PDF mit Literaturverzeichnis hochladen.</p>
+
+    <h3>📚 Extrahierte Literaturverweise</h3>
+    <table id="results-table">
+        <thead>
+            <tr>
+            <th>Status</th>
+            <th>Titel</th>
+            <th>Autor(en)</th>
+            <th>Jahr</th>
+            <th>Verlag</th>
+            <th>DOI / URL</th>
+            </tr>
+        </thead>
+        <tbody id="results-body">
+            <!-- Dynamisch generierte Zeilen kommen hierhin -->
+        </tbody>
+    </table>
+    <p>Details</p>
+    <details>
+        <summary>🔍Json-Rohdaten anzeigen</summary>
+        <pre style="background: #f0f0f0; padding: 1em; border-radius: 5px;" id="jsonBlock"></pre>
+    </details>
+    <script src="libs/pdf.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

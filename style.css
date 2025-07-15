@@ -1,0 +1,66 @@
+body {
+    font-family: sans-serif;
+    margin: 2rem;
+}
+h1 {
+    color: #003366;
+}
+h2 {
+    color: #005599;
+}
+h3 {
+    color: #0077cc;
+}
+
+#results-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-top: 2em;
+  font-family: "Segoe UI", sans-serif;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+#results-table thead {
+  background: linear-gradient(to right, #0077cc, #0099ff);
+  color: white;
+}
+
+#results-table th,
+#results-table td {
+  padding: 12px 16px;
+  text-align: left;
+}
+
+#results-table tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+#results-table tbody tr:hover {
+  background-color: #eef6ff;
+  transition: background-color 0.2s ease-in-out;
+}
+
+#results-table td a {
+  color: #0077cc;
+  text-decoration: none;
+}
+
+#results-table td a:hover {
+  text-decoration: underline;
+}
+
+td.ok {
+  color: green;
+  font-weight: bold;
+}
+td.nok {
+  color: red;
+  font-weight: bold;
+}
+td.not-checked {
+  color: gray;
+  font-style: italic;
+}
