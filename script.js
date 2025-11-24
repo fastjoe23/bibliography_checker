@@ -109,26 +109,46 @@ async function extractReferencesWithLLM(pdfText) {
     // Prompt mit eingefügtem Text
     const prompt = REFERENCE_EXTRACTION_PROMPT.replace('<<BIBLIOGRAPHYTEXT>>', pdfText.slice(0, 12000));
 
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-        method: "POST",
-        headers: {
-            "Authorization": `Bearer ${userApiKey}`,
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            model: "mistralai/mistral-small-3.2-24b-instruct:free",
-            messages: [
-                { role: "user", content: prompt }
-            ]
-        })
-    });
+    let response, data, message;
+    try {
+        response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${userApiKey}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                model: "openai/gpt-oss-20b:free",
+                messages: [
+                    { role: "user", content: prompt }
+                ]
+            })
+        });
+    } catch (networkError) {
+        alert("Netzwerkfehler beim Zugriff auf die LLM-API. Bitte prüfe deine Internetverbindung.");
+        return [];
+    }
 
-    const data = await response.json();
-    const message = await data.choices[0].message.content;
+    if (!response.ok) {
+        let errorMsg = "Fehler bei der Kommunikation mit dem LLM-Service.";
+        errorMsg += ` (Status: ${response.status})`;
+        alert(errorMsg);
+        return [];
+    }
+
+    try {
+        data = await response.json();
+        message = data.choices?.[0]?.message?.content;
+        if (!message) throw new Error("Keine Antwort vom LLM erhalten.");
+    } catch (jsonError) {
+        alert("Fehler beim Parsen der Antwort des LLM (ungültiges JSON).");
+        return [];
+    }
+
     try {
         return extractJsonFromResponse(message);
-    } catch (e) {
-        alert("Fehler bei der Antwort des LLM.");
+    } catch (parseError) {
+        alert("Fehler beim Parsen des JSON aus der LLM-Antwort.");
         return [];
     }
 }
